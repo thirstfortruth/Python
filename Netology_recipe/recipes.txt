@@ -1,5 +1,10 @@
-Омлет
+Omlet
 3
-Яйца | 2 | шт
-Молоко | 50 | г
-Помидор | 100 | мл
+egs | 2 | each
+milk | 50 | g
+tomato | 100 | ml
+Bread
+3
+Flour | 300 | g
+water | 200 | ml
+yeast | 20  | g
