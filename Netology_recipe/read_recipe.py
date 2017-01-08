@@ -33,11 +33,14 @@ print("Please enter path to file:")
 #file = input()
 recipe_names, recipe_ingredients, number_of_ingredients = read_file(file)
 recipe_dictionary = create_recipes(recipe_names, recipe_ingredients, number_of_ingredients)
+
+#Show what we got:
 for k, v in recipe_dictionary.items():
 	print('Recipe name: {0}'.format(k))
 	for i in range(len(v)):
+		print("Ingredient {0}: ".format(i),end = '')
 		for value in v[i].values():
-			print(value, end = ' ')
+			print("{0} ".format(value), end = '')
 		print('')
 #just to see result on cmd screen, freeze program:
 while True:
