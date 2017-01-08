@@ -28,9 +28,9 @@ def read_file(path_to_file):
 				else:
 					recipe_names.append(line)
 	return(recipe_names, recipe_ingredients, number_of_ingredients)					
-file = "D:/Python/GIT_HUB_repository/Netology_recipe/recipes.txt"
+#file = "D:/Python/GIT_HUB_repository/Netology_recipe/recipes.txt"
 print("Please enter path to file:")
-#file = input()
+file = input()
 recipe_names, recipe_ingredients, number_of_ingredients = read_file(file)
 recipe_dictionary = create_recipes(recipe_names, recipe_ingredients, number_of_ingredients)
 
