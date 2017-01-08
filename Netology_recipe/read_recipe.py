@@ -38,5 +38,7 @@ for k, v in recipe_dictionary.items():
 	for i in range(len(v)):
 		for value in v[i].values():
 			print(value, end = ' ')
-		print('\n')
-file = input()
+		print('')
+#just to see result on cmd screen, freeze program:
+while True:
+	pass
