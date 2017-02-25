@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<root>
+	<Omlet type="list">
+		<item type="dict">
+			<quantity type="str">2</quantity>
+			<product type="str">egs</product>
+			<unit_of_measure type="str">each</unit_of_measure>
+		</item>
+		<item type="dict">
+			<quantity type="str">50</quantity>
+			<product type="str">milk</product>
+			<unit_of_measure type="str">g</unit_of_measure>
+		</item>
+		<item type="dict">
+			<quantity type="str">100</quantity>
+			<product type="str">tomato</product>
+			<unit_of_measure type="str">ml</unit_of_measure>
+		</item>
+	</Omlet>
+	<Bread type="list">
+		<item type="dict">
+			<quantity type="str">300</quantity>
+			<product type="str">Flour</product>
+			<unit_of_measure type="str">g</unit_of_measure>
+		</item>
+		<item type="dict">
+			<quantity type="str">200</quantity>
+			<product type="str">water</product>
+			<unit_of_measure type="str">ml</unit_of_measure>
+		</item>
+		<item type="dict">
+			<quantity type="str">20</quantity>
+			<product type="str">yeast</product>
+			<unit_of_measure type="str">g</unit_of_measure>
+		</item>
+	</Bread>
+</root>

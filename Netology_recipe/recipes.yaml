@@ -1,0 +1,8 @@
+Bread:
+- {product: Flour, quantity: '300', unit_of_measure: g}
+- {product: water, quantity: '200', unit_of_measure: ml}
+- {product: yeast, quantity: '20', unit_of_measure: g}
+Omlet:
+- {product: egs, quantity: '2', unit_of_measure: each}
+- {product: milk, quantity: '50', unit_of_measure: g}
+- {product: tomato, quantity: '100', unit_of_measure: ml}

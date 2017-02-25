@@ -1,12 +1,1 @@
-{
-    "Omlet":[ 
-		{"product": "egs", "quantity": "2", "unit_of_measure": "each"},
-        {"product": "milk", "quantity": "50", "unit_of_measure": "g"},
-		{"product": "tomato", "quantity": "100", "unit_of_measure": "ml"}
-    ],
-    "Bread":[ 
-		{"product": "Flour", "quantity": "300", "unit_of_measure": "g"},
-        {"product": "water", "quantity": "200", "unit_of_measure": "ml"},
-		{"product": "yeast", "quantity": "20", "unit_of_measure": "g"}
-    ]
-}
+{"Omlet": [{"quantity": "2", "product": "egs", "unit_of_measure": "each"}, {"quantity": "50", "product": "milk", "unit_of_measure": "g"}, {"quantity": "100", "product": "tomato", "unit_of_measure": "ml"}], "Bread": [{"quantity": "300", "product": "Flour", "unit_of_measure": "g"}, {"quantity": "200", "product": "water", "unit_of_measure": "ml"}, {"quantity": "20", "product": "yeast", "unit_of_measure": "g"}]}
