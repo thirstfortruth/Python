@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as mp
+import matplotlib.pyplot as plt
+
+directory_with_files = 'C:/Users/user/Downloads/26022017/yob{}.txt'
+
+
+def count_top3(list_of_years):
+    names_by_year = {}
+    for year in list_of_years:
+        names_by_year[year] = pd.read_csv(directory_with_files.format(year),
+                                          names=['Name', 'Gender', 'Count'],
+                                          encoding="utf-8-sig")
+    names = pd.concat(names_by_year, names=['Name', 'Gender'])\
+        .groupby('Name')\
+        .sum()\
+        .sort_values(by='Count', ascending=False)\
+        .head(3)
+    result = list(names.T.columns[0:3])
+    return result
+
+#count_top3([1880]) == ['John', 'William', 'Mary']
+#count_top3([1900, 1950, 2000]) == ['James', 'John', 'Robert']
+
+
+def count_dynamics(list_of_years):
+    names_by_year = {}
+    result = []
+    for year in list_of_years:
+        names_by_year[year] = pd.read_csv(directory_with_files.format(year),
+                                          names=['Name', 'Gender', 'Count'],
+                                          encoding="utf-8-sig")
+        names_by_year[year]['Year'] = pd.Series(year, index=names_by_year[year].index)
+    names = pd.concat(names_by_year)
+    names = names.groupby(['Year', 'Gender']).sum()
+    print(names['Gender'])
+    #names.reset_index(level=['Gender'])
+    #names['Gender'] = names.index.get_level_values('Gender')
+    #print(names.T.index[1])
+    #    print(names.T.xs('Gender', level=1))
+    #print(names)
+    #result = list(names.T.columns[1:2])
+    return result
+
+count_dynamics([1900, 1950, 2000])
+
+#print(count_dynamics([1900, 1950, 2000]))
+#count_dynamics([1900, 1950, 2000]) == {
+#          'F': [299822, 1713450, 1814738],
+#          'M': [150490, 1791474, 1962556]
+        #}
