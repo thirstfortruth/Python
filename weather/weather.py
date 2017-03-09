@@ -92,16 +92,16 @@ for filename in os.listdir(dirname):
             print('Exception appeared')
             continue
 
-for filename in os.listdir(dirname):
-    if filename.__contains__(".xml") or filename.__contains__(".XML"):
-        file = os.path.join(dirname, filename)
-        print(file)
-        try:
-            data = read_file_xml(file)
-            #print(data)
-            text = get_all_text(data)
-            most_common_words = get_list_of_popular_words(text, 5)
-            print(most_common_words)
-        except:
-            print('Exception appeared')
-            continue
+# for filename in os.listdir(dirname):
+#     if filename.__contains__(".xml") or filename.__contains__(".XML"):
+#         file = os.path.join(dirname, filename)
+#         print(file)
+#         try:
+#             data = read_file_xml(file)
+#             #print(data)
+#             text = get_all_text(data)
+#             most_common_words = get_list_of_popular_words(text, 5)
+#             print(most_common_words)
+#         except:
+#             print('Exception appeared')
+#             continue
