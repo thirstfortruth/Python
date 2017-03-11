@@ -78,4 +78,4 @@ my_function()
 Пример ответа:
 [x for x in mass]
 
-[x*x*x  for x in mass if x % 3 == 0 and x % 4 == 0]
+[x ** 3  for x in mass if x % 3 == 0 and x % 4 == 0]

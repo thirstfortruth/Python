@@ -74,7 +74,6 @@ def get_all_text(json_data):
         result = result + ' ' + item_title + ' ' + item_description
     return result
 
-
 # file = "D:/Python/Netology_python_course/GIT/Python_course/PY1_Lesson_2.3/newsafr.json"
 dirname = "D:/Python/Netology_python_course/GIT/Python_course/PY1_Lesson_2.3/"
 encodings = {'newsafr.json': 'UTF-8', 'newscy.json': 'koi8_r', 'newsfr.json': 'iso8859_5', 'newsit.json': 'cp1251'}
