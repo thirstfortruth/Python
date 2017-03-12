@@ -4,18 +4,6 @@ import xmltodict
 import re
 import collections
 import os
-from xml.parsers import expat
-
-
-class MyParser(object):
-
-    def XmlDecl(self, version, encoding, standalone):
-        return encoding
-
-    def Parse(self, data):
-        Parser = expat.ParserCreate()
-        Parser.XmlDeclHandler = self.XmlDecl
-        Parser.Parse(data, 1)
 
 
 def read_file_xml(xml_path_to_file):
@@ -91,16 +79,3 @@ for filename in os.listdir(dirname):
             print('Exception appeared')
             continue
 
-# for filename in os.listdir(dirname):
-#     if filename.__contains__(".xml") or filename.__contains__(".XML"):
-#         file = os.path.join(dirname, filename)
-#         print(file)
-#         try:
-#             data = read_file_xml(file)
-#             #print(data)
-#             text = get_all_text(data)
-#             most_common_words = get_list_of_popular_words(text, 5)
-#             print(most_common_words)
-#         except:
-#             print('Exception appeared')
-#             continue
