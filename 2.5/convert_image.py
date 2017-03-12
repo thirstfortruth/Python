@@ -43,7 +43,7 @@ while True:
     input('Please enter source directory:', source_dir)
     files = glob.glob(os.path.join(source_dir, "*.jpg"))
     #results = 'D:/Python/GIT_HUB_repository/2.5/Result'
-    input('Please enter source directory:', result)
+    input('Please enter source directory:', results)
     check_directory(results)
     if len(files) == 0:
         print('No files found. Please try again')
