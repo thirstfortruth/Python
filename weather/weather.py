@@ -84,7 +84,7 @@ for filename in os.listdir(dirname):
         try:
             data = read_file_json(file, encodings[filename])
             text = get_all_text(data)
-            most_common_words = get_list_of_popular_words(text, 5)
+            most_common_words = get_list_of_popular_words(text, 10)
             print(file, encodings[filename])
             print(most_common_words)
         except:
