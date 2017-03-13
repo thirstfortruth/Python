@@ -64,11 +64,14 @@ def read_file(file):
 
 
 def write_file(file, text):
-    '''with open(file, 'w') as w_file:
-        w_file.write(str(text.encode('cp1251'))'''
     with io.open(file, 'w', encoding='utf8') as w_file:
         w_file.write(text)
 
+
+def add_ya_link(text):
+    ya_text = '\n' + 'Переведено сервисом «Яндекс.Переводчик»' + '\n' + 'http://translate.yandex.ru/' + '\n'
+    text = ya_text + text + ya_text
+    return text
 
 available_directions = get_langs()
 translate_direction = get_direction(FROM_LANG, TO_LANG)
@@ -83,4 +86,5 @@ if not check_file(SOURCE_FILE):
 source_text = read_file(SOURCE_FILE)
 translated_text = translate(source_text, translate_direction)
 translated_text = str(translated_text['text'][0])
+translated_text = add_ya_link(translated_text)
 write_file(RESULT_FILE, translated_text)
