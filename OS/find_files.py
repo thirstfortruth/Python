@@ -10,17 +10,22 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-migrations = 'D:/Python/jmistx_repo/PY1_Lesson_2.4/homework/Advanced Migrations/'
+migrations = './Advanced Migrations/'
 list_of_files = set(glob.glob(os.path.join(migrations, "*.sql")))
 
 
+def read_file(filename):
+    with open(filename, 'r') as temp_file:
+        data = temp_file.read().replace('\n', '')
+    return data
+
+
 def limit_results(pattern, files):
-    limited_files = set()
-    for file in files:
-        file_base = os.path.basename(file)
-        if file_base.__contains__(pattern):
-            limited_files.add(file)
-    return limited_files
+    out_list = []
+    for inner_file in files:
+        if pattern in read_file(inner_file):
+            out_list.append(inner_file)
+    return out_list
 
 
 for file in list_of_files:
@@ -33,7 +38,4 @@ while True:
     for file in list_of_files:
         print(file)
     print('Total:', len(list_of_files))
-
-
-
 
