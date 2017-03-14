@@ -2,6 +2,7 @@ import glob
 import os.path
 import signal
 import sys
+import io
 
 
 def signal_handler(signal, frame):
@@ -11,11 +12,10 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 migrations = './Advanced Migrations/'
-list_of_files = set(glob.glob(os.path.join(migrations, "*.sql")))
 
 
 def read_file(filename):
-    with open(filename, 'r') as temp_file:
+    with io.open(filename, 'r', encoding='utf8') as temp_file:
         data = temp_file.read().replace('\n', '')
     return data
 
@@ -28,14 +28,17 @@ def limit_results(pattern, files):
     return out_list
 
 
-for file in list_of_files:
-    print(file)
-print('Total:', len(list_of_files))
-while True:
-    print('Enter pattern to search')
-    pattern_to_search = input()
-    list_of_files = limit_results(pattern_to_search, list_of_files)
+def main_cycle():
+    list_of_files = set(glob.glob(os.path.join(migrations, "*.sql")))
     for file in list_of_files:
         print(file)
     print('Total:', len(list_of_files))
+    while True:
+        print('Enter pattern to search')
+        pattern_to_search = input()
+        list_of_files = limit_results(pattern_to_search, list_of_files)
+        for file in list_of_files:
+            print(file)
+        print('Total:', len(list_of_files))
 
+main_cycle()
