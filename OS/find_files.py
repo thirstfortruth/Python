@@ -3,6 +3,7 @@ import os.path
 import signal
 import sys
 import io
+import codecs
 
 
 def signal_handler(signal, frame):
@@ -15,15 +16,35 @@ migrations = './Advanced Migrations/'
 
 
 def read_file(filename):
-    with io.open(filename, 'r', encoding='utf8') as temp_file:
-        data = temp_file.read().replace('\n', '')
+    try:
+        with io.open(filename, 'r', encoding='utf8') as temp_file:
+            data = temp_file.read().replace('\n', '')
+    except:
+        with io.open(filename, 'r', encoding='cp1251') as temp_file:
+            data = temp_file.read().replace('\n', '')
+    finally:
+        print('ERROR: encoding is not defined. Exiting...')
+        exit(1)
+    return data
+
+
+def read_file_coded(filename):
+    try:
+        with codecs.open(filename, 'r', encoding='utf8') as temp_file:
+            data = temp_file.read().replace('\n', '')
+    except:
+        with io.open(filename, 'r', encoding='cp1251') as temp_file:
+            data = temp_file.read().replace('\n', '')
+    finally:
+        print('ERROR: encoding is not defined. Exiting...')
+        exit(1)
     return data
 
 
 def limit_results(pattern, files):
     out_list = []
     for inner_file in files:
-        if pattern in read_file(inner_file):
+        if pattern in read_file_coded(inner_file):
             out_list.append(inner_file)
     return out_list
 
