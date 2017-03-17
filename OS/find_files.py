@@ -1,56 +1,39 @@
 import glob
 import os.path
-import signal
-import sys
 import io
-import codecs
+import chardet
+
+SOURCE_DIRECTORY = './Advanced Migrations/'
 
 
-def signal_handler(signal, frame):
-        print('You pressed Ctrl+C!')
-        sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-migrations = './Advanced Migrations/'
+def detect_encoding(in_string):
+    return chardet.detect(in_string)['encoding']
 
 
 def read_file(filename):
+    file = open(filename, 'rb')
+    detect_data = file.read(32768)
+    encoding = detect_encoding(detect_data)
     try:
-        with io.open(filename, 'r', encoding='utf8') as temp_file:
+        with io.open(filename, 'r', encoding=encoding) as temp_file:
             data = temp_file.read().replace('\n', '')
+        return data
     except:
-        with io.open(filename, 'r', encoding='cp1251') as temp_file:
-            data = temp_file.read().replace('\n', '')
-    finally:
-        print('ERROR: encoding is not defined. Exiting...')
-        exit(1)
-    return data
-
-
-def read_file_coded(filename):
-    try:
-        with codecs.open(filename, 'r', encoding='utf8') as temp_file:
-            data = temp_file.read().replace('\n', '')
-    except:
-        with io.open(filename, 'r', encoding='cp1251') as temp_file:
-            data = temp_file.read().replace('\n', '')
-    finally:
-        print('ERROR: encoding is not defined. Exiting...')
-        exit(1)
-    return data
+        print('ERROR: autodetected encoding {encoding} is not match for file: {file}'.format(encoding=encoding,
+                                                                                             file=filename))
+        return ''
 
 
 def limit_results(pattern, files):
     out_list = []
     for inner_file in files:
-        if pattern in read_file_coded(inner_file):
+        if pattern in read_file(inner_file):
             out_list.append(inner_file)
     return out_list
 
 
-def main_cycle():
-    list_of_files = set(glob.glob(os.path.join(migrations, "*.sql")))
+def main_cycle(source_directory):
+    list_of_files = set(glob.glob(os.path.join(source_directory, "*.sql")))
     for file in list_of_files:
         print(file)
     print('Total:', len(list_of_files))
@@ -62,4 +45,4 @@ def main_cycle():
             print(file)
         print('Total:', len(list_of_files))
 
-main_cycle()
+main_cycle(SOURCE_DIRECTORY)
