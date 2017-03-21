@@ -10,8 +10,9 @@ auth_data = {
     'client_id': APP_ID
 }
 
-# print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
+print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 TOKEN = 'AQAAAAABsbuIAAQk7YD_rix4BET1vdowsF71ZM0'
+
 
 class YandexMetrika(object):
     _METRIKA_STAT_URL = 'https://api-metrika.yandex.ru/stat/v1/'
@@ -25,7 +26,7 @@ class YandexMetrika(object):
         return {
             'Content-Type': 'application/json',
             'Authorization': 'OAuth {}'.format(self.token),
-            'User-Agent': 'any_text'
+            'User-Agent': 'asdasdasd'
         }
 
     @property
@@ -33,7 +34,6 @@ class YandexMetrika(object):
         url = urljoin(self._METRIKA_MANAGEMENT_URL, 'counters')
         headers = self.get_header()
         response = requests.get(url, headers=headers)
-        pprint('COUNTERS', response.json())
         counter_list = [c['id'] for c in response.json()['counters']]
         return counter_list
 
@@ -45,13 +45,12 @@ class YandexMetrika(object):
             'metrics': 'ym:s:visits'
         }
         response = requests.get(url, params, headers=headers)
-        pprint(response.json())
         visits_count = response.json()['data'][0]['metrics'][0]
         return visits_count
 
 metrika = YandexMetrika(TOKEN)
-# print(YandexMetrika.__dict__)
-# print(metrika.__dict__)
+print(YandexMetrika.__dict__)
+print(metrika.__dict__)
 print(metrika.counter_list)
 for counter in metrika.counter_list:
     print(metrika.get_visits_count(counter))
