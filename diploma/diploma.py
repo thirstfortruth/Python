@@ -2,12 +2,12 @@ import time
 from urllib.parse import urlencode, urlparse
 import requests
 import math
-import json
-import vk
+import sys
 AUTHORIZE_URL = 'https://oauth.vk.com/authorize'
 VERSION = '5.61'
 APP_ID = 5927510
-FILENAME = 'users_output.dat'
+GROUPS_FILE = 'groups_output.dat'
+USERS_FILE = 'users_output.dat'
 auth_data = {'client_id': APP_ID,
              'display': 'mobile',
              'response_type': 'token',
@@ -15,9 +15,7 @@ auth_data = {'client_id': APP_ID,
              'v': VERSION}
 print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 USER_ID = '80491907'
-#exit(0)
-#
-token_url = 'https://oauth.vk.com/blank.html#access_token=f94e416a29050eb5428ba8f14e9bbcdbf1d7988a9411af354ca702e9b76d97ae9fcb32a5e66a42ad39b12&expires_in=86400&user_id=4931934'
+token_url = ''
 #while True:
 #    token_url = input('Please enter token URL')
 #    if len(token_url) == 0:
@@ -28,6 +26,15 @@ token_url = 'https://oauth.vk.com/blank.html#access_token=f94e416a29050eb5428ba8
 o = urlparse(token_url)
 fragments = dict((i.split('=') for i in o.fragment.split('&')))
 access_token = fragments['access_token']
+
+
+# took from http://stackoverflow.com/questions/6169217/replace-console-output-in-python
+def progress_bar(value, endvalue, bar_length=50):
+    percent = float(value) / endvalue
+    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
+    spaces = ' ' * (bar_length - len(arrow))
+    sys.stdout.write("\rProgress: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
 
 
 def get_friends(user_id):
@@ -47,88 +54,88 @@ def get_groups_for_user(user_id):
 
 def get_followers(user_id):
     followers = []
-    offset = 0
     count = 1000
     params_followers_get = {'access_token': access_token,
                             'user_id': user_id,
                             'count': count,
-                            'offset': offset,
                             'v': VERSION}
     response_followers_get = requests.get('https://api.vk.com/method/users.getFollowers', params_followers_get).json()
     count_followers = response_followers_get['response']['count']
+    #count_followers = 10000
+    max_count = math.ceil(count_followers/count)*count
+    print('Total followers: ', max_count)
     if count_followers > count:
-        for i in range(math.floor(count_followers/count)+1):
+        for i in range(0, max_count, count):
+            progress_bar(i, max_count)
             params_followers_get = {'access_token': access_token,
                                     'user_id': user_id,
                                     'count': count,
-                                    'offset': offset + count * i,
+                                    'offset': i,
                                     'v': VERSION}
             try:
                 response = requests.get('https://api.vk.com/method/users.getFollowers', params_followers_get).json()
-                time.sleep(0.25)
+                time.sleep(0.35)
                 followers = followers + response['response']['items']
             except:
-                print("get_followers, responce: ", response)
+                time.sleep(0.35)
+        progress_bar(max_count, max_count)
     return followers
 
 
-def get_followers_groups(user_id):
-    followers = []
-    offset = 0
-    count = 10
-    params_followers_get = {'access_token': access_token,
-                            'user_id': user_id,
-                            'count': count,
-                            'offset': offset,
-                            'v': VERSION}
-    response_followers_get = requests.get('https://api.vk.com/method/users.getFollowers', params_followers_get).json()
-    count_followers = response_followers_get['response']['count']
-    if count_followers > count:
-        for i in range(math.floor(count_followers/count)+1):
+def get_followers_groups(followers, followers_count):
+    groups = []
+    count = 200
+    response_groups_get = None
+    progress_bar(0, followers_count)
+    if followers_count > count:
+        for i in range(count, followers_count, count):
+            progress_bar(i, followers_count)
             try:
-                params_followers_get = {'access_token': access_token,
-                                        'user_id': user_id,
-                                        'count': count,
-                                        'offset': offset + count * i,
-                                        'v': VERSION}
-                response = requests.get('https://api.vk.com/method/users.getFollowers', params_followers_get).json()
-                time.sleep(0.33)
-                followers = followers + response['response']['items']
                 params_groups_get = {'access_token': access_token,
-                                     'user_id': response['response']['items'],
+                                     'user_id': followers[i-count: i],
                                      'count': 1000,
                                      'v': VERSION}
-                response_groups_get = requests.get('https://api.vk.com/method/groups.get', params_groups_get)
-                print(response_groups_get.json())
-                time.sleep(0.33)
+                response_groups_get = requests.get('https://api.vk.com/method/groups.get', params_groups_get).json()
+                #print(response_groups_get.json())
+                groups = groups + response_groups_get['response']['items']
+                time.sleep(0.3)
             except:
-                print("get_followers, responce: ", response)
-                print("response_groups_get, responce: ", response_groups_get.json())
-    return followers
+                #print("response_groups_get, response: ", response_groups_get)
+                time.sleep(0.3)
+    else:
+        try:
+            params_groups_get = {'access_token': access_token,
+                                 'user_id': followers,
+                                 'count': 1000,
+                                 'v': VERSION}
+            response_groups_get = requests.get('https://api.vk.com/method/groups.get', params_groups_get).json()
+            print(response_groups_get)
+            groups = groups + response_groups_get['response']['items']
+        except:
+            print("response_groups_get, response: ", response_groups_get)
+    progress_bar(followers_count, followers_count)
+    print("\n")
+    return groups
+
+
+def write_results(filename, data_to_write):
+    with open(filename, 'a') as f:
+         for line in data_to_write:
+              f.write(str(line)+"\n")
+
 
 #friends_data = get_friends(USER_ID)
 #friends_count, friends = friends_data['count'], friends_data['items']
 #groups = get_groups_for_user(USER_ID)
-# print('Getting followers....')
-#followers = get_followers(USER_ID)
-followers = [4931934]
-print('Got followers. Number: {}. Proceeding with file creation.'.format({len(followers)}))
-counter = 0
-
-for follower in followers:
-    counter = + 1
-    with open(FILENAME, 'a') as f:
-        if (counter/len(followers))*100 in range(101, 10):
-            print('Task is {percent} done. {count_users} users left'.format(percent=(counter/followers)*100),
-                  count_users=counter)
-        try:
-            groups = get_groups_for_user(follower)
-            time.sleep(0.3)
-            for group in groups['response']['items']:
-                 string_to_write = str(follower)+", "+str(group)
-                 f.write(string_to_write+"\n")
-        except:
-            print(groups)
+print('\nGetting followers....')
+followers = get_followers(USER_ID)
+followers_count = len(followers)
+write_results(USERS_FILE, followers)
+print('\nGetting groups....')
+groups = get_followers_groups(followers, followers_count)
+#followers = get_followers(4931934)
+print('Got followers. Number: {}. Proceeding with file creation.'.format({followers_count}))
+write_results(GROUPS_FILE, groups)
 
 #get_followers_groups(USER_ID)
-print(get_followers_groups(4931934))
+#print(get_followers_groups(4931934))
