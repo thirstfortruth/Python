@@ -3,6 +3,10 @@ from urllib.parse import urlencode, urlparse
 import requests
 import math
 import sys
+import collections
+import pandas as pd
+import numpy as np
+
 AUTHORIZE_URL = 'https://oauth.vk.com/authorize'
 VERSION = '5.61'
 APP_ID = 5927510
@@ -124,18 +128,25 @@ def write_results(filename, data_to_write):
               f.write(str(line)+"\n")
 
 
-#friends_data = get_friends(USER_ID)
-#friends_count, friends = friends_data['count'], friends_data['items']
-#groups = get_groups_for_user(USER_ID)
-print('\nGetting followers....')
+def read_file(filename):
+    with open(filename) as f:
+        lines = f.read().splitlines()
+    return lines
+
+
+def get_top_list(input_list, limit):
+    df1 = pd.DataFrame({'Groups': input_list})
+    result = df1.groupby(['Groups']).size().reset_index().sort_values(by=0, ascending=False).head(limit)
+    return result['Groups'].values.tolist()
+
+
+print('\nGetting followers...')
 followers = get_followers(USER_ID)
 followers_count = len(followers)
 write_results(USERS_FILE, followers)
-print('\nGetting groups....')
+print('\nGetting groups...')
 groups = get_followers_groups(followers, followers_count)
-#followers = get_followers(4931934)
 print('Got followers. Number: {}. Proceeding with file creation.'.format({followers_count}))
 write_results(GROUPS_FILE, groups)
-
-#get_followers_groups(USER_ID)
-#print(get_followers_groups(4931934))
+#groups = read_file(GROUPS_FILE)
+print(get_top_list(groups, 100))
