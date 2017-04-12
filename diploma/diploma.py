@@ -19,7 +19,7 @@ auth_data = {'client_id': APP_ID,
              'v': VERSION}
 print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 USER_ID = '80491907'
-token_url = ''
+token_url = 'https://oauth.vk.com/blank.html#access_token=3784ae5ecbcd3a8ea4311536ae32405de37dce8d9fb2ee896e8ead05dad18ddd5277a83a3d0a7ff7f3f93&expires_in=86400&user_id=4931934'
 #while True:
 #    token_url = input('Please enter token URL')
 #    if len(token_url) == 0:
@@ -44,7 +44,7 @@ def progress_bar(value, endvalue, bar_length=50):
 def get_friends(user_id):
     get_params = {'access_token': access_token, 'user_id': user_id, 'v': VERSION}
     response = requests.get('https://api.vk.com/method/friends.get', get_params)
-    return response.json()['response']
+    return response.json()['response']['items']
 
 
 def get_groups_for_user(user_id):
@@ -122,6 +122,15 @@ def get_followers_groups(followers, followers_count):
     return groups
 
 
+def get_groups_members(group):
+    params_group_memebers = {'access_token': access_token,
+                         'group_id': group,
+                         'extended': 0,
+                         'v': VERSION}
+    response_group_memebers = requests.get('https://api.vk.com/method/groups.getMembers', params_group_memebers).json()
+    return response_group_memebers['response']['items']
+
+
 def write_results(filename, data_to_write):
     with open(filename, 'a') as f:
          for line in data_to_write:
@@ -141,12 +150,16 @@ def get_top_list(input_list, limit):
 
 
 print('\nGetting followers...')
-followers = get_followers(USER_ID)
-followers_count = len(followers)
-write_results(USERS_FILE, followers)
+# followers = get_followers(USER_ID)
+# friends = get_friends(USER_ID)
+# followers = followers + friends
+# write_results(USERS_FILE, followers)
+followers = read_file(USERS_FILE)
+
 print('\nGetting groups...')
-groups = get_followers_groups(followers, followers_count)
-print('Got followers. Number: {}. Proceeding with file creation.'.format({followers_count}))
-write_results(GROUPS_FILE, groups)
-#groups = read_file(GROUPS_FILE)
-print(get_top_list(groups, 100))
+# groups = get_followers_groups(followers,  len(followers))
+# write_results(GROUPS_FILE, groups)
+groups = read_file(GROUPS_FILE)
+
+top_groups = get_top_list(groups, 100)
+print(get_groups_members(top_groups[0]))
