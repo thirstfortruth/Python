@@ -19,7 +19,7 @@ auth_data = {'client_id': APP_ID,
              'v': VERSION}
 print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 USER_ID = '80491907'
-token_url = 'https://oauth.vk.com/blank.html#access_token=3784ae5ecbcd3a8ea4311536ae32405de37dce8d9fb2ee896e8ead05dad18ddd5277a83a3d0a7ff7f3f93&expires_in=86400&user_id=4931934'
+token_url = 'https://oauth.vk.com/blank.html#access_token=e4401fbe2794b9d5593ddb9666d950f53aebecb7172033afd39adc050e3975ab4e77c19d9b7e68e231207&expires_in=86400&user_id=4931934'
 #while True:
 #    token_url = input('Please enter token URL')
 #    if len(token_url) == 0:
@@ -42,7 +42,7 @@ def progress_bar(value, endvalue, bar_length=50):
 
 
 def get_friends(user_id):
-    get_params = {'access_token': access_token, 'user_id': user_id, 'v': VERSION}
+    get_params = {'access_token': access_token, 'user_id': user_id, 'v': VERSION, 'fields': "sex,bdate"}
     response = requests.get('https://api.vk.com/method/friends.get', get_params)
     return response.json()['response']['items']
 
@@ -149,17 +149,104 @@ def get_top_list(input_list, limit):
     return result['Groups'].values.tolist()
 
 
+def get_followers_subquery(user_id):
+    followers = []
+    current_count = 0
+    count = 1000
+    offset_step = 1000
+    exec_limit = 25
+    params_followers_count = {"access_token": access_token,
+                              "user_ids": user_id,
+                              "fields": "followers_count",
+                              "v": VERSION}
+    response_followers_count = requests.get('https://api.vk.com/method/users.get', params_followers_count).json()
+    followers_count = response_followers_count["response"][0]["followers_count"]
+    upper_limit = (math.ceil(followers_count/(offset_step*exec_limit)))*(offset_step*exec_limit)
+    while current_count < upper_limit:
+        progress_bar(current_count, upper_limit)
+        code = '''var count = ''' + str(count) + ''';
+                var user_id = ''' + user_id + ''';
+                var version = ''' + VERSION + ''';
+                var token = "''' + access_token + '''";
+                var offset_followers = ''' + str(current_count) + ''';
+                var offset_step = ''' + str(offset_step) + ''';
+                var followers = [];
+                var i = 1;
+                while ( i <= ''' + str(exec_limit) + ''' )
+                    {
+                        followers = followers + API.users.getFollowers({"access_token": (token),
+                                                                        "user_id": (user_id),
+                                                                        "count":(count),
+                                                                        "offset":(offset_followers + offset_step*i),
+                                                                        "fields": "sex,bdate",
+                                                                        "v": (version)}).items;
+                        i = i + 1;
+                    };
+                return followers;'''
+        current_count += offset_step*exec_limit
+        execute_params = {"access_token": access_token,
+                          "code": code,
+                          "v": VERSION}
+        response_followers = requests.post('https://api.vk.com/method/execute', execute_params).json()
+        #print(response_followers["response"])
+        followers = followers + response_followers["response"]
+        #time.sleep(0.3)
+    progress_bar(upper_limit, upper_limit)
+    return followers
+
+
+def get_users_details_subquery(users_list):
+    user_details = []
+    exec_limit = 24
+    counter = 0
+    upper_limit = len(users_list)
+    while counter < upper_limit:
+        progress_bar(counter, upper_limit)
+        code = '''var user_list = ''' + users_list[counter:counter+exec_limit] + ''';
+                var version = ''' + VERSION + ''';
+                var token = "''' + access_token + '''";
+                var user_details = [];
+                var i = 0;
+                var users_details_temp = API.users.getFollowers({"access_token": (token),
+                                                                        "user_ids": (user_list),
+                                                                        "fields": "sex,bdate",
+                                                                        "v": (version)}).items;
+                while ( i < ''' + str(exec_limit) + ''' )
+                    {
+                        user_details = user_details + API.users.getFollowers({"access_token": (token),
+                                                                        "user_id": (user_list[i]),
+                                                                        "v": (version)}).items;
+                    };
+
+                return user_details;'''
+        counter += exec_limit
+        execute_params = {"access_token": access_token,
+                          "code": code,
+                          "v": VERSION}
+        response_followers = requests.post('https://api.vk.com/method/execute', execute_params).json()
+        user_details = user_details + response_followers["response"]
+        time.sleep(0.3)
+        progress_bar(upper_limit, upper_limit)
+    return followers
+# print('\nGetting followers...')
+# # followers = get_followers(USER_ID)
+# # friends = get_friends(USER_ID)
+# # followers = followers + friends
+# # write_results(USERS_FILE, followers)
+# followers = read_file(USERS_FILE)
+#
+# print('\nGetting groups...')
+# # groups = get_followers_groups(followers,  len(followers))
+# # write_results(GROUPS_FILE, groups)
+# groups = read_file(GROUPS_FILE)
+#
+# top_groups = get_top_list(groups, 100)
+# print(get_groups_members(top_groups[0]))
+
 print('\nGetting followers...')
-# followers = get_followers(USER_ID)
-# friends = get_friends(USER_ID)
-# followers = followers + friends
-# write_results(USERS_FILE, followers)
-followers = read_file(USERS_FILE)
+followers = get_followers_subquery(USER_ID)
+friends = get_friends(USER_ID)
+followers = followers + friends
+print(followers[0], followers[len(followers)-1])
+#write_results(USERS_FILE, followers)
 
-print('\nGetting groups...')
-# groups = get_followers_groups(followers,  len(followers))
-# write_results(GROUPS_FILE, groups)
-groups = read_file(GROUPS_FILE)
-
-top_groups = get_top_list(groups, 100)
-print(get_groups_members(top_groups[0]))
