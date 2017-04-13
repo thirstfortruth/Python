@@ -162,6 +162,7 @@ def get_followers_subquery(user_id):
     response_followers_count = requests.get('https://api.vk.com/method/users.get', params_followers_count).json()
     followers_count = response_followers_count["response"][0]["followers_count"]
     upper_limit = (math.ceil(followers_count/(offset_step*exec_limit)))*(offset_step*exec_limit)
+    upper_limit=26000
     while current_count < upper_limit:
         progress_bar(current_count, upper_limit)
         code = '''var count = ''' + str(count) + ''';
@@ -247,6 +248,8 @@ print('\nGetting followers...')
 followers = get_followers_subquery(USER_ID)
 friends = get_friends(USER_ID)
 followers = followers + friends
-print(followers[0], followers[len(followers)-1])
+print(followers[0])
+followers_transformed = [{x['id']:{'sex': x['sex'], 'bdate':x['bdate']}} if 'bdate' in x else {x['id']:{'sex': x['sex'], 'bdate': 0}} for x in followers]
+print(followers_transformed[0],followers_transformed[1], followers_transformed[len(followers_transformed)-1])
 #write_results(USERS_FILE, followers)
 
