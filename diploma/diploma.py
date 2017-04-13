@@ -19,7 +19,7 @@ auth_data = {'client_id': APP_ID,
              'v': VERSION}
 print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 USER_ID = '80491907'
-token_url = 'https://oauth.vk.com/blank.html#access_token=e4401fbe2794b9d5593ddb9666d950f53aebecb7172033afd39adc050e3975ab4e77c19d9b7e68e231207&expires_in=86400&user_id=4931934'
+token_url = 'https://oauth.vk.com/blank.html#access_token=&expires_in=86400&user_id=4931934'
 #while True:
 #    token_url = input('Please enter token URL')
 #    if len(token_url) == 0:
@@ -196,39 +196,37 @@ def get_followers_subquery(user_id):
     return followers
 
 
-def get_users_details_subquery(users_list):
-    user_details = []
-    exec_limit = 24
+def get_users_groups_subquery(users_list):
+    users_groups = {}
+    exec_limit = 25
     counter = 0
     upper_limit = len(users_list)
     while counter < upper_limit:
         progress_bar(counter, upper_limit)
-        code = '''var user_list = ''' + users_list[counter:counter+exec_limit] + ''';
+        temp_list = [list(x.keys())[0] for x in users_list[counter:counter+exec_limit]]
+        code = '''var user_list = ''' + str(temp_list) + ''';
                 var version = ''' + VERSION + ''';
                 var token = "''' + access_token + '''";
-                var user_details = [];
                 var i = 0;
-                var users_details_temp = API.users.getFollowers({"access_token": (token),
-                                                                        "user_ids": (user_list),
-                                                                        "fields": "sex,bdate",
-                                                                        "v": (version)}).items;
+                var users_groups = {};
                 while ( i < ''' + str(exec_limit) + ''' )
                     {
-                        user_details = user_details + API.users.getFollowers({"access_token": (token),
-                                                                        "user_id": (user_list[i]),
-                                                                        "v": (version)}).items;
+                        users_groups[(user_list[i])] = API.users.getSubscriptions({"access_token": (token),
+                                                                                    "user_id": (user_list[i]),
+                                                                                    "v": (version)});
+                        i = i + 1;
                     };
-
-                return user_details;'''
+                return users_groups;'''
         counter += exec_limit
         execute_params = {"access_token": access_token,
                           "code": code,
                           "v": VERSION}
-        response_followers = requests.post('https://api.vk.com/method/execute', execute_params).json()
-        user_details = user_details + response_followers["response"]
+        response_groups = requests.post('https://api.vk.com/method/execute', execute_params).json()
+        print(response_groups)
+        users_list = users_groups + response_groups["response"]["groups"]["items"]
         time.sleep(0.3)
         progress_bar(upper_limit, upper_limit)
-    return followers
+    return users_groups
 # print('\nGetting followers...')
 # # followers = get_followers(USER_ID)
 # # friends = get_friends(USER_ID)
@@ -249,7 +247,11 @@ followers = get_followers_subquery(USER_ID)
 friends = get_friends(USER_ID)
 followers = followers + friends
 print(followers[0])
-followers_transformed = [{x['id']:{'sex': x['sex'], 'bdate':x['bdate']}} if 'bdate' in x else {x['id']:{'sex': x['sex'], 'bdate': 0}} for x in followers]
-print(followers_transformed[0],followers_transformed[1], followers_transformed[len(followers_transformed)-1])
+followers_transformed = [{x['id']:{'sex': x['sex'], 'bdate':x['bdate']}}
+                         if 'bdate' in x
+                         else {x['id']:{'sex': x['sex'], 'bdate': 0}}
+                         for x in followers]
+followers_ids = [list(x.keys())[0] for x in followers_transformed]
+get_users_groups_subquery(followers_transformed)
 #write_results(USERS_FILE, followers)
 
