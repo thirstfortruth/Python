@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 AUTHORIZE_URL = 'https://oauth.vk.com/authorize'
-VERSION = '5.61'
+VERSION = '5.63'
 APP_ID = 5927510
 GROUPS_FILE = 'groups_output.dat'
 USERS_FILE = 'users_output.dat'
@@ -19,7 +19,7 @@ auth_data = {'client_id': APP_ID,
              'v': VERSION}
 print('?'.join((AUTHORIZE_URL, urlencode(auth_data))))
 USER_ID = '80491907'
-token_url = 'https://oauth.vk.com/blank.html#access_token=&expires_in=86400&user_id=4931934'
+token_url = 'https://oauth.vk.com/blank.html#access_token=c2a61400d4b928bc1ea7f35bc8d62b2d3f786b7168eb111d86cd5c3df6f3aaeb6235bab565819fbfb32d4&expires_in=86400&user_id=4931934'
 #while True:
 #    token_url = input('Please enter token URL')
 #    if len(token_url) == 0:
@@ -191,7 +191,7 @@ def get_followers_subquery(user_id):
         response_followers = requests.post('https://api.vk.com/method/execute', execute_params).json()
         #print(response_followers["response"])
         followers = followers + response_followers["response"]
-        #time.sleep(0.3)
+        time.sleep(0.3)
     progress_bar(upper_limit, upper_limit)
     return followers
 
@@ -204,27 +204,33 @@ def get_users_groups_subquery(users_list):
     while counter < upper_limit:
         progress_bar(counter, upper_limit)
         temp_list = [list(x.keys())[0] for x in users_list[counter:counter+exec_limit]]
+        #print(temp_list)
         code = '''var user_list = ''' + str(temp_list) + ''';
                 var version = ''' + VERSION + ''';
                 var token = "''' + access_token + '''";
                 var i = 0;
-                var users_groups = {};
-                while ( i < ''' + str(exec_limit) + ''' )
+                var users_groups = [];
+                while ( i < user_list.length )
                     {
-                        users_groups[(user_list[i])] = API.users.getSubscriptions({"access_token": (token),
-                                                                                    "user_id": (user_list[i]),
-                                                                                    "v": (version)});
+                        var user_id = user_list[i];
+                        users_groups.push(API.users.getSubscriptions({"access_token": (token),
+                                                                                    "user_id": (user_id),
+                                                                                    "v": (version)}).groups.items);
                         i = i + 1;
                     };
                 return users_groups;'''
-        counter += exec_limit
+
         execute_params = {"access_token": access_token,
                           "code": code,
                           "v": VERSION}
-        response_groups = requests.post('https://api.vk.com/method/execute', execute_params).json()
-        print(response_groups)
-        users_list = users_groups + response_groups["response"]["groups"]["items"]
-        time.sleep(0.3)
+        response_groups = requests.post('https://api.vk.com/method/execute', execute_params).json()["response"]
+        #print(response_groups)
+        # print(list(range(len(temp_list))))
+        for i in range(len(temp_list)):
+            list(users_list[counter + i].values())[0]['groups'] = response_groups[i]
+        # users_list = users_groups + response_groups
+        counter += exec_limit
+        #time.sleep(0.3)
         progress_bar(upper_limit, upper_limit)
     return users_groups
 # print('\nGetting followers...')
@@ -246,12 +252,38 @@ print('\nGetting followers...')
 followers = get_followers_subquery(USER_ID)
 friends = get_friends(USER_ID)
 followers = followers + friends
-print(followers[0])
+# print(followers[0])
 followers_transformed = [{x['id']:{'sex': x['sex'], 'bdate':x['bdate']}}
                          if 'bdate' in x
                          else {x['id']:{'sex': x['sex'], 'bdate': 0}}
                          for x in followers]
+# print(followers_transformed[0:25])
+# followers_transformed=[{24067740: {'sex': 2, 'bdate': '18.1'}},
+#                        {223918359: {'sex': 2, 'bdate': '31.10.2001'}},
+#                        {340475094: {'sex': 1, 'bdate': 0}},
+#                        {249016476: {'sex': 2, 'bdate': '2.7'}},
+#                        {422707533: {'sex': 2, 'bdate': '16.4.1999'}},
+#                        {260562673: {'sex': 1, 'bdate': '8.3'}},
+#                        {357867508: {'sex': 2, 'bdate': '7.3.2003'}},
+#                        {251309909: {'sex': 2, 'bdate': '29.11.1976'}},
+#                        {422733096: {'sex': 1, 'bdate': 0}},
+#                        {422372294: {'sex': 1, 'bdate': 0}},
+#                        {320478535: {'sex': 1, 'bdate': '6.7'}},
+#                        {422719692: {'sex': 1, 'bdate': '20.6.1999'}},
+#                        {422726235: {'sex': 1, 'bdate': '28.6.1997'}},
+#                        {292742343: {'sex': 2, 'bdate': 0}},
+#                        {422722981: {'sex': 2, 'bdate': 0}},
+#                        {422725520: {'sex': 1, 'bdate': 0}},
+#                        {219348214: {'sex': 1, 'bdate': '9.5'}},
+#                        {422536678: {'sex': 2, 'bdate': 0}},
+#                        {377165906: {'sex': 1, 'bdate': '26.6.2003'}},
+#                        {151112749: {'sex': 1, 'bdate': '7.6'}},
+#                        {193973650: {'sex': 1, 'bdate': '15.8.1974'}},
+#                        {312738186: {'sex': 1, 'bdate': '26.7'}},
+#                        {134371027: {'sex': 2, 'bdate': '5.8'}},
+#                        {39078592: {'sex': 2, 'bdate': '14.2'}},
+#                        {385441315: {'sex': 1, 'bdate': 0}}]
 followers_ids = [list(x.keys())[0] for x in followers_transformed]
-get_users_groups_subquery(followers_transformed)
+print(get_users_groups_subquery(followers_transformed))
 #write_results(USERS_FILE, followers)
 
