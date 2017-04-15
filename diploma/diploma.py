@@ -42,7 +42,7 @@ def get_friends(user_id):
 
 
 def get_followers_subquery(user_id):
-    print('\nStart getting followers at: ', datetime.datetime.now())
+    print('\n1/3. Start getting followers at: ', datetime.datetime.now())
     followers = []
     current_count = 0
     count = 1000
@@ -89,7 +89,7 @@ def get_followers_subquery(user_id):
 
 
 def get_users_groups_subquery(users_list):
-    print('\nStart getting groups at: ', datetime.datetime.now())
+    print('\n2/3. Start getting groups at: ', datetime.datetime.now())
     exec_limit = 25
     counter = 0
     upper_limit = len(users_list)
@@ -126,7 +126,7 @@ def get_users_groups_subquery(users_list):
 
 
 def save_results(details_to_save, file_to_save):
-    print("Saving to file {}".format(file_to_save))
+    print("\n3/3. Start saving to file at: ", datetime.datetime.now())
     with open(file_to_save, 'w') as f:
         f.write("USER_ID;SEX;BIRTH_DATE;GROUP_NO" + "\n")
     with open(file_to_save, 'a') as f:
@@ -142,16 +142,12 @@ def save_results(details_to_save, file_to_save):
                                       ';' + \
                                       str(group)
                     f.write(string_to_write+"\n")
+    print("\nDone saving! File \"{}\". Time:".format(file_to_save), datetime.datetime.now())
 
 
 def sex_translate(num):
-    if num == 1:
-        char = 'F'
-    elif num == 2:
-        char = 'M'
-    else:
-        char = 'N'
-    return char
+    sex_mapper = {1: "F", 2: "M", 0: "N"}
+    return sex_mapper.get(num)
 
 
 def calculate_age(birthday):
@@ -168,17 +164,22 @@ def main_cycle():
                              if 'bdate' in x and x['bdate'].count('.') > 1
                              else {x['id']:{'sex': sex_translate(x['sex']), 'bdate': 0}}
                              for x in followers]
-    #followers_ids = [list(x.keys())[0] for x in followers_transformed]
-    # if limit:
-    #     details_with_groups = get_users_groups_subquery(followers_transformed[0:limit])
-    # else:
-    details_with_groups = get_users_groups_subquery(followers_transformed[0:1000])
-    print("\nSaving results", datetime.datetime.now())
+    details_with_groups = get_users_groups_subquery(followers_transformed[0:500])
     save_results(details_with_groups, GROUPS_FILE)
-    print("\nDone saving!", datetime.datetime.now())
+
 
 
 main_cycle()
 
 #write_results(USERS_FILE, followers)
-
+# console output for full extract
+# Start getting followers at:  2017-04-15 03:34:48.880773
+# Progress: [------------------------------------------------->] 100%
+# Start getting groups at:  2017-04-15 03:36:21.886027
+# Progress: [------------------------------------------------->] 100%
+# Saving results 2017-04-15 10:01:07.133937
+# Saving to file groups_output.dat
+#
+# Done saving! 2017-04-15 10:03:10.019590
+#
+# Process finished with exit code 0
