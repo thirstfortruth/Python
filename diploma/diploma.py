@@ -128,7 +128,7 @@ def get_users_groups_subquery(users_list):
 def save_results(details_to_save, file_to_save):
     print("\n3/3. Start saving to file at: ", datetime.datetime.now())
     with open(file_to_save, 'w') as f:
-        f.write("USER_ID;SEX;BIRTH_DATE;GROUP_NO" + "\n")
+        f.write("USER_ID;SEX;AGE;GROUP_NO" + "\n")
     with open(file_to_save, 'a') as f:
         for user in details_to_save:
             groups = list(user.values())[0]['groups']
