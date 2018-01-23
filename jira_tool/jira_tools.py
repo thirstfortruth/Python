@@ -1,4 +1,5 @@
 from jira import JIRA
+import json
 
 jira = JIRA('https://jira.atlassian.com')
 #SEARCH_STRING = 'project = JRA AND (status = "Open" OR status = "Resolved" OR key="JRASERVER-9")'
@@ -24,6 +25,10 @@ def print_comment(jira_issues):
             print(issue_comment.raw['body'])
 
 
-
+#issue = jira.issue('JRA-1330')
+#print(issue.raw)
+print(json.dumps(jira.createmeta(projectKeys='TST')))
+#print(jira.createmeta(projectKeys='JRA').raw)
 #print(fetch_tickets(jira, SEARCH_STRING))
-print_comment(fetch_tickets(jira, SEARCH_STRING))
+# print_comment(fetch_tickets(jira, SEARCH_STRING))
+
